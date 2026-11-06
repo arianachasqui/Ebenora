@@ -1,0 +1,35 @@
+{
+  "s": {
+    "wa": "573000000000",
+    "bar": "🚚 Envíos CONTRA ENTREGA a todo el país · Pagas cuando recibes"
+  },
+  "p": [
+    {
+      "id": "p1",
+      "name": "Producto de ejemplo 1",
+      "price": 89900,
+      "old": 129900,
+      "desc": "Describe aquí los beneficios del producto.\nEntra al panel admin para editarlo.",
+      "img": "",
+      "on": true
+    },
+    {
+      "id": "p2",
+      "name": "Producto de ejemplo 2",
+      "price": 59900,
+      "old": 89900,
+      "desc": "Cambia nombre, precio y foto desde el panel.",
+      "img": "",
+      "on": true
+    },
+    {
+      "id": "p3",
+      "name": "Producto de ejemplo 3",
+      "price": 119900,
+      "old": 0,
+      "desc": "Máximo 3 o 4 productos para una tienda enfocada.",
+      "img": "",
+      "on": true
+    }
+  ]
+}
