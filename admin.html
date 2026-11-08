@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<link rel="manifest" href="/admin.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#0b0b0b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Admin Ebenora">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Admin · Ebenora</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Montserrat:wght@400;500;600&display=swap">
+<style>
+:root{--ink:#0b0b0b;--gold:#b8862b;--gold2:#e2b55a;--cream:#fbf3e6;--card:#fffaf1;--line:#ead9b8;--txt:#2a2420}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--txt);font:15px/1.5 Montserrat,system-ui,sans-serif;padding:18px}
+h1,h2,h3{font-family:"Cormorant Garamond",Georgia,serif;margin:0;color:var(--ink)}
+.w{max-width:760px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0}
+label{display:block;font-size:12.5px;font-weight:600;color:#6b5d4a;margin:9px 0 3px}
+input,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff}
+.btn{background:linear-gradient(135deg,var(--gold2),var(--gold));border:0;border-radius:999px;padding:11px 22px;font:600 14px Montserrat,sans-serif;cursor:pointer;color:#1a1206}
+.btn.d{background:var(--ink);color:var(--gold2)}.btn.g{background:none;border:1px solid var(--gold);color:var(--gold)}
+.btn:disabled{opacity:.5}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.th{width:90px;height:90px;border-radius:10px;object-fit:cover;background:#f3e2bd;display:grid;place-items:center;font-size:30px}
+.msg{font-size:13px;color:#6b5d4a}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--gold2);padding:10px 18px;border-radius:999px;display:none;max-width:90%;text-align:center}
+
+input,textarea{font-size:16px}
+@media(max-width:520px){body{padding:12px}.row{grid-template-columns:1fr}.btn{width:100%}.bar .btn{flex:1}}
+</style>
+</head>
+<body>
+<div class="w" id="app"></div>
+<div id="toast"></div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const toast=m=>{const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',3500)};
+const b64=s=>btoa(unescape(encodeURIComponent(s)));
+const unb64=s=>decodeURIComponent(escape(atob(s.replace(/\n/g,''))));
+let cfg={};try{cfg=JSON.parse(localStorage.getItem('ebn_gh')||'{}')}catch(e){}
+let D=null,sha=null;
+async function gh(path,opt={}){
+  const r=await fetch(`https://api.github.com/repos/${cfg.repo}/contents/${path}`+(opt.method==='PUT'?'':`?ref=${cfg.branch}&t=${Date.now()}`),{...opt,headers:{Authorization:'Bearer '+cfg.token,Accept:'application/vnd.github+json','Content-Type':'application/json'}});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(j.message||('Error '+r.status));
+  return j;
+}
+function login(){
+  $('app').innerHTML=`<h1>Panel Ebenora</h1><div class="card"><p class="msg">Acceso privado. Necesitas tu token de GitHub (solo se guarda en este navegador).</p>
+  <label>Repositorio (usuario/repo)</label><input id="rp" value="${esc(cfg.repo||'')}" placeholder="miusuario/ebenora">
+  <label>Rama</label><input id="br" value="${esc(cfg.branch||'main')}">
+  <label>Token de GitHub</label><input id="tk" type="password" value="${esc(cfg.token||'')}" placeholder="github_pat_...">
+  <div class="bar"><button class="btn" id="go">Entrar</button></div></div>`;
+  $('go').onclick=async()=>{
+    cfg={repo:$('rp').value.trim(),branch:$('br').value.trim()||'main',token:$('tk').value.trim()};
+    $('go').disabled=true;$('go').textContent='Verificando…';
+    try{const j=await gh('products.json');sha=j.sha;D=JSON.parse(unb64(j.content));localStorage.setItem('ebn_gh',JSON.stringify(cfg));panel()}
+    catch(e){toast('No se pudo entrar: '+e.message);$('go').disabled=false;$('go').textContent='Entrar'}
+  };
+}
+function sync(){
+  D.s.wa=$('swa').value.replace(/\D/g,'');D.s.bar=$('sbar').value;
+  document.querySelectorAll('.card[data-i]').forEach(r=>{const p=D.p[r.dataset.i];r.querySelectorAll('[data-f]').forEach(f=>{const k=f.dataset.f;p[k]=k==='on'?f.checked:(k==='price'||k==='old')?(parseInt(f.value.replace(/\D/g,''))||0):f.value})});
+}
+function panel(){
+  $('app').innerHTML=`<div class="bar" style="justify-content:space-between"><h1>Panel Ebenora</h1><button class="btn g" id="out">Salir</button></div>
+  <div class="card"><h3>Ajustes</h3><label>WhatsApp que recibe pedidos (con código de país, ej. 573001234567)</label><input id="swa" value="${esc(D.s.wa)}"><label>Mensaje de la barra superior</label><input id="sbar" value="${esc(D.s.bar)}"></div>
+  ${D.p.map((p,i)=>`<div class="card" data-i="${i}"><div class="bar" style="justify-content:space-between"><h3>Producto ${i+1}</h3><label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" data-f="on" ${p.on?'checked':''} style="width:auto"> Visible</label></div>
+  <div class="bar">${p.img?`<img class="th" src="${p.img.startsWith('data:')?p.img:esc(p.img)}">`:'<div class="th">🛍️</div>'}<div><input type="file" accept="image/*" data-img style="border:0;padding:0"><div class="msg">La foto se sube a GitHub al elegirla.</div></div></div>
+  <label>Nombre</label><input data-f="name" value="${esc(p.name)}"><div class="row"><div><label>Precio (COP)</label><input data-f="price" inputmode="numeric" value="${p.price}"></div><div><label>Precio anterior (opcional)</label><input data-f="old" inputmode="numeric" value="${p.old||''}"></div></div>
+  <label>Descripción</label><textarea data-f="desc" rows="3">${esc(p.desc)}</textarea><div class="bar"><button class="btn g" data-del>🗑 Eliminar</button></div></div>`).join('')}
+  <div class="bar"><button class="btn d" id="add">+ Agregar producto</button><button class="btn" id="save">Guardar y publicar</button></div>
+  <p class="msg">Al guardar, GitHub recibe el cambio y Vercel actualiza la tienda en ~1 minuto.</p>`;
+  $('out').onclick=()=>{localStorage.removeItem('ebn_gh');cfg={};login()};
+  $('add').onclick=()=>{sync();D.p.push({id:'p'+Date.now(),name:'Nuevo producto',price:0,old:0,desc:'',img:'',on:true});panel()};
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{if(confirm('¿Eliminar este producto?')){sync();D.p.splice(b.closest('.card').dataset.i,1);panel()}});
+  document.querySelectorAll('[data-img]').forEach(inp=>inp.onchange=()=>{
+    sync();const i=inp.closest('.card').dataset.i,f=inp.files[0];if(!f)return;
+    const im=new Image();im.onload=async()=>{
+      const k=Math.min(1,800/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      const url=c.toDataURL('image/jpeg',.82),path='images/'+D.p[i].id+'-'+Date.now()+'.jpg';
+      toast('Subiendo foto a GitHub…');
+      try{await gh(path,{method:'PUT',body:JSON.stringify({message:'Foto de producto',content:url.split(',')[1],branch:cfg.branch})});
+        D.p[i].img=path;toast('Foto subida ✔ (recuerda Guardar y publicar)');panel()}
+      catch(e){toast('Error al subir: '+e.message)}
+    };im.src=URL.createObjectURL(f);
+  });
+  $('save').onclick=async()=>{
+    sync();const b=$('save');b.disabled=true;b.textContent='Guardando…';
+    try{const j=await gh('products.json',{method:'PUT',body:JSON.stringify({message:'Actualizar productos',content:b64(JSON.stringify(D,null,2)),sha,branch:cfg.branch})});
+      sha=j.content.sha;toast('Publicado ✔ La tienda se actualiza en ~1 minuto')}
+    catch(e){toast('Error: '+e.message)}
+    b.disabled=false;b.textContent='Guardar y publicar';
+  };
+}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('/admin-sw.js',{scope:'/admin'}).catch(()=>{});
+login();
+</script>
+</body>
+</html>
