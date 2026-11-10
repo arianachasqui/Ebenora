@@ -20,7 +20,7 @@
       "old": 89900,
       "desc": "Cambia nombre, precio y foto desde el panel.",
       "img": "",
-      "on": false
+      "on": true
     },
     {
       "id": "p3",
@@ -29,7 +29,7 @@
       "old": 0,
       "desc": "Máximo 3 o 4 productos para una tienda enfocada.",
       "img": "",
-      "on": false
+      "on": true
     }
   ]
 }
