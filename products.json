@@ -6,11 +6,11 @@
   "p": [
     {
       "id": "p1",
-      "name": "Producto de ejemplo 1",
-      "price": 89900,
-      "old": 129900,
-      "desc": "Describe aquí los beneficios del producto.\nEntra al panel admin para editarlo.",
-      "img": "",
+      "name": "Parlante Wind BS",
+      "price": 94900,
+      "old": 99900,
+      "desc": "El Wind 3 BS Portátil es el compañero ideal para disfrutar de tu música en cualquier lugar. Cuenta con conexión Bluetooth, radio FM, entrada auxiliar y reproducción mediante tarjeta microSD, para que escuches tus canciones favoritas como prefieras.",
+      "img": "images/p1-1794275292089.jpg",
       "on": true
     },
     {
@@ -20,7 +20,7 @@
       "old": 89900,
       "desc": "Cambia nombre, precio y foto desde el panel.",
       "img": "",
-      "on": true
+      "on": false
     },
     {
       "id": "p3",
@@ -29,7 +29,7 @@
       "old": 0,
       "desc": "Máximo 3 o 4 productos para una tienda enfocada.",
       "img": "",
-      "on": true
+      "on": false
     }
   ]
 }
