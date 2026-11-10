@@ -15,19 +15,19 @@
     },
     {
       "id": "p2",
-      "name": "Producto de ejemplo 2",
-      "price": 59900,
-      "old": 89900,
-      "desc": "Cambia nombre, precio y foto desde el panel.",
+      "name": "Próximamente ",
+      "price": 0,
+      "old": 0,
+      "desc": "",
       "img": "",
       "on": true
     },
     {
       "id": "p3",
-      "name": "Producto de ejemplo 3",
-      "price": 119900,
+      "name": "Próximamente ",
+      "price": 0,
       "old": 0,
-      "desc": "Máximo 3 o 4 productos para una tienda enfocada.",
+      "desc": "",
       "img": "",
       "on": true
     }
